@@ -9,7 +9,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -187,6 +189,9 @@ Date loadDeadlineFromConfig(const char* filename) {
 }
 
 int main(int argc, char* argv[]) {
+#ifdef _WIN32
+    SetConsoleTitleA("Carpe Diem");
+#endif
     Date targetDate = loadDeadlineFromConfig("config.txt");
 
     if (targetDate.year == 0) {
@@ -207,7 +212,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Countdown", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    SDL_Window* window = SDL_CreateWindow("Carpe Diem", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                         WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
         printf("Window creation failed: %s\n", SDL_GetError());

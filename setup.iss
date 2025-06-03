@@ -1,6 +1,6 @@
-#define MyAppName "Countdown Timer"
+#define MyAppName "Carpe Diem"
 #define MyAppVersion "1.0"
-#define MyAppPublisher "Your Name"
+#define MyAppPublisher "MOHCINE OTMANE, SIDI BENNOUR, BRAGA, MOROCCO"
 #define MyAppExeName "countdown.exe"
 
 [Setup]
@@ -12,10 +12,11 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=installer
-OutputBaseFilename=CountdownTimer-Setup
+OutputBaseFilename=CarpeDiem-Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=icon.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -33,9 +34,9 @@ Source: "dist\config.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\quotes.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\{#MyAppExeName}"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent 
