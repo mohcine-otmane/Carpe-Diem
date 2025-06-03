@@ -38,8 +38,12 @@ typedef struct {
 
 Date parseDate(const char* dateStr) {
     Date date;
-    sscanf(dateStr, "%d-%d-%d", &date.year, &date.month, &date.day);
-    return date;
+    if (sscanf(dateStr, "%d-%d-%d", &date.year, &date.month, &date.day) == 3) {
+        return date;
+    } else {
+        date.year = 0; date.month = 0; date.day = 0; // Indicate parse error
+        return date;
+    }
 }
 
 time_t getTargetTime(Date date) {
@@ -151,13 +155,36 @@ std::vector<std::string> loadQuotes(const char* filename) {
     return quotes;
 }
 
+Date loadDeadlineFromConfig(const char* filename) {
+    std::ifstream file(filename);
+    std::string line;
+    Date deadlineDate = {0, 0, 0};
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            size_t eqPos = line.find('=');
+            if (eqPos != std::string::npos) {
+                std::string key = line.substr(0, eqPos);
+                std::string value = line.substr(eqPos + 1);
+                if (key == "deadline") {
+                    deadlineDate = parseDate(value.c_str());
+                    break;
+                }
+            }
+        }
+        file.close();
+    }
+    return deadlineDate;
+}
+
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        printf("Usage: %s YYYY-MM-DD\n", argv[0]);
+    Date targetDate = loadDeadlineFromConfig("config.txt");
+
+    if (targetDate.year == 0) {
+        printf("Error: Could not read or parse deadline from config.txt. Ensure the file exists and has a line like 'deadline=YYYY-MM-DD'\n");
         return 1;
     }
 
-    Date targetDate = parseDate(argv[1]);
     time_t targetTime = getTargetTime(targetDate);
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
