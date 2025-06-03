@@ -25,4 +25,4 @@ Example:
 ./countdown.exe 2024-12-31
 ```
 
-Make sure `arial.ttf` is in the project directory or parent directory. 
+Make sure `arial.ttf` and `quotes.txt` are in the project directory or parent directory. 
