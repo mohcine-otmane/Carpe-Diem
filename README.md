@@ -4,7 +4,8 @@ A simple countdown timer application built with SDL2 in C.
 
 ## Preview
 
-![Carpe Diem Preview](@preview.png)
+![preview](https://github.com/user-attachments/assets/2403d846-065a-42e6-a70f-221936e2c91c)
+
 
 ## Setup and Build
 
