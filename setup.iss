@@ -4,7 +4,7 @@
 #define MyAppExeName "countdown.exe"
 
 [Setup]
-AppId={{YOUR-UNIQUE-APP-ID-HERE}
+AppId={{8F7B3A9D-4B5C-4E8F-9F2D-1A3B4C5D6E7F}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -32,6 +32,7 @@ Source: "dist\SDL2_image.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\Technology.ttf"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\config.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\quotes.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "icon.png"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"

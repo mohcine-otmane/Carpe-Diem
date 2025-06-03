@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_image.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #endif
 
 #define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 700
+#define WINDOW_HEIGHT 600
 #define TITLE_FONT_SIZE 48
 #define NUMBER_FONT_SIZE 80
 #define LABEL_FONT_SIZE 24
@@ -212,6 +213,13 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    if (IMG_Init(IMG_INIT_PNG) < 0) {
+        printf("SDL_image initialization failed: %s\n", IMG_GetError());
+        TTF_Quit();
+        SDL_Quit();
+        return 1;
+    }
+
     SDL_Window* window = SDL_CreateWindow("Carpe Diem", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                         WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
@@ -219,6 +227,12 @@ int main(int argc, char* argv[]) {
         TTF_Quit();
         SDL_Quit();
         return 1;
+    }
+
+    SDL_Surface* icon = IMG_Load("icon.png");
+    if (icon) {
+        SDL_SetWindowIcon(window, icon);
+        SDL_FreeSurface(icon);
     }
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -243,10 +257,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Color darkBackground = {0x10, 0x10, 0x10, 0xff};
-    Color neonBlue = {0x00, 0xf0, 0xff, 0xff};
-    Color neonMagenta = {0xff, 0x00, 0xff, 0xff};
-    Color darkNeonBlue = {0x00, 0x70, 0x90, 0xff};
+    Color darkBackground = {0, 0, 0, 0xff};
+    Color primaryColor = {200, 160, 50, 0xff};
+    Color secondaryColor = {160, 160, 160, 0xff};
+    Color unfilledColor = {96, 96, 96, 0xff};
 
     std::vector<std::string> quotes = loadQuotes("quotes.txt");
     srand(time(NULL));
@@ -296,11 +310,11 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, darkBackground.r, darkBackground.g, darkBackground.b, darkBackground.a);
         SDL_RenderClear(renderer);
 
-        drawDaySquares(renderer, daysRemaining > TOTAL_SQUARES ? TOTAL_SQUARES : daysRemaining, neonBlue, darkNeonBlue);
+        drawDaySquares(renderer, daysRemaining > TOTAL_SQUARES ? TOTAL_SQUARES : daysRemaining, primaryColor, unfilledColor);
 
         int titleWidth, titleHeight;
         TTF_SizeText(titleFont, "Countdown", &titleWidth, &titleHeight);
-        renderText(renderer, titleFont, "Countdown", neonMagenta, (WINDOW_WIDTH - titleWidth) / 2, PADDING);
+        renderText(renderer, titleFont, "Countdown", secondaryColor, (WINDOW_WIDTH - titleWidth) / 2, PADDING);
 
         int digitWidth, numberHeight;
         TTF_SizeText(numberFont, "0", &digitWidth, &numberHeight);
@@ -316,32 +330,32 @@ int main(int argc, char* argv[]) {
         int numberY = PADDING * 2 + titleHeight;
         int labelY = numberY + displayHeight + PADDING / 2;
 
-        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, neonBlue, numberFont, daysStr);
+        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, primaryColor, numberFont, daysStr);
         int daysLabelWidth;
         TTF_SizeText(labelFont, "Days", &daysLabelWidth, NULL);
-        renderText(renderer, labelFont, "Days", neonBlue, startX + numberDisplayWidth/2 - daysLabelWidth/2, labelY);
+        renderText(renderer, labelFont, "Days", primaryColor, startX + numberDisplayWidth/2 - daysLabelWidth/2, labelY);
         startX += numberDisplayWidth + PADDING;
         
-        drawColon(renderer, startX, numberY, colonDisplayWidth, displayHeight, neonBlue, numberFont);
+        drawColon(renderer, startX, numberY, colonDisplayWidth, displayHeight, primaryColor, numberFont);
         startX += colonDisplayWidth + PADDING;
 
-        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, neonBlue, numberFont, hoursStr);
+        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, secondaryColor, numberFont, hoursStr);
         int hoursLabelWidth;
         TTF_SizeText(labelFont, "Hours", &hoursLabelWidth, NULL);
-        renderText(renderer, labelFont, "Hours", neonBlue, startX + numberDisplayWidth/2 - hoursLabelWidth/2, labelY);
+        renderText(renderer, labelFont, "Hours", secondaryColor, startX + numberDisplayWidth/2 - hoursLabelWidth/2, labelY);
         startX += numberDisplayWidth + PADDING;
 
-        drawColon(renderer, startX, numberY, colonDisplayWidth, displayHeight, neonBlue, numberFont);
+        drawColon(renderer, startX, numberY, colonDisplayWidth, displayHeight, primaryColor, numberFont);
         startX += colonDisplayWidth + PADDING;
 
-        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, neonBlue, numberFont, minutesStr);
+        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, secondaryColor, numberFont, minutesStr);
         int minutesLabelWidth;
         TTF_SizeText(labelFont, "Minutes", &minutesLabelWidth, NULL);
-        renderText(renderer, labelFont, "Minutes", neonBlue, startX + numberDisplayWidth/2 - minutesLabelWidth/2, labelY);
+        renderText(renderer, labelFont, "Minutes", secondaryColor, startX + numberDisplayWidth/2 - minutesLabelWidth/2, labelY);
 
         if (!quotes.empty()) {
             const std::string& quote = quotes[currentQuoteIndex];
-            renderWrappedText(renderer, quoteFont, quote.c_str(), neonMagenta, PADDING, labelY + LABEL_FONT_SIZE + PADDING * 2, WINDOW_WIDTH - PADDING * 2);
+            renderWrappedText(renderer, quoteFont, quote.c_str(), secondaryColor, PADDING, labelY + LABEL_FONT_SIZE + PADDING * 2, WINDOW_WIDTH - PADDING * 2);
         }
 
         SDL_RenderPresent(renderer);

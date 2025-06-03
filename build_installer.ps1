@@ -36,7 +36,8 @@ $files = @(
     "SDL2_image.dll",
     "Technology.ttf",
     "config.txt",
-    "quotes.txt"
+    "quotes.txt",
+    "icon.png"
 )
 
 foreach ($file in $files) {
