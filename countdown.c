@@ -16,16 +16,15 @@
 #define NUMBER_FONT_SIZE 80
 #define LABEL_FONT_SIZE 24
 #define QUOTE_FONT_SIZE 24
-#define MIN_QUOTE_FONT_SIZE 14
 #define PADDING 30
 #define SQUARE_SIZE 15
 #define SQUARE_SPACING 5
 #define GRID_COLS 20
 #define GRID_ROWS 10
 #define TOTAL_SQUARES (GRID_COLS * GRID_ROWS)
-#define SEGMENT_OUTLINE_THICKNESS 2
+#define SEGMENT_OUTLINE_THICKNESS 3
 #define DIGIT_SPACING 5
-#define QUOTE_DISPLAY_TIME 10000 // milliseconds
+#define QUOTE_DISPLAY_TIME 10000
 
 typedef struct {
     int year;
@@ -103,24 +102,12 @@ void renderWrappedText(SDL_Renderer* renderer, TTF_Font* font, const char* text,
     }
 }
 
-void drawSegmentBackground(SDL_Renderer* renderer, int x, int y, int w, int h, Color outlineColor, Color bgColor) {
-    SDL_SetRenderDrawColor(renderer, outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a);
-    SDL_Rect outlineRect = {x, y, w, h};
-    SDL_RenderFillRect(renderer, &outlineRect);
-
-    SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, bgColor.a);
-    SDL_Rect bgRect = {x + SEGMENT_OUTLINE_THICKNESS, y + SEGMENT_OUTLINE_THICKNESS, w - SEGMENT_OUTLINE_THICKNESS * 2, h - SEGMENT_OUTLINE_THICKNESS * 2};
-    SDL_RenderFillRect(renderer, &bgRect);
-}
-
-void drawNumberSegment(SDL_Renderer* renderer, int x, int y, int segmentWidth, int segmentHeight, Color outlineColor, Color bgColor, Color textColor, TTF_Font* font, const char* numberStr) {
+void drawNumber(SDL_Renderer* renderer, int x, int y, int segmentWidth, int segmentHeight, Color textColor, TTF_Font* font, const char* numberStr) {
     int digitWidth;
     TTF_SizeText(font, "0", &digitWidth, NULL);
     int totalDigitWidth = digitWidth * 2 + DIGIT_SPACING;
     int startDigitX = x + (segmentWidth - totalDigitWidth) / 2;
     int textY = y + (segmentHeight - (TTF_FontHeight(font) - TTF_FontDescent(font))) / 2;
-
-    drawSegmentBackground(renderer, x, y, segmentWidth, segmentHeight, outlineColor, bgColor);
 
     char digit1[2] = {numberStr[0], '\0'};
     char digit2[2] = {numberStr[1], '\0'};
@@ -129,9 +116,7 @@ void drawNumberSegment(SDL_Renderer* renderer, int x, int y, int segmentWidth, i
     renderText(renderer, font, digit2, textColor, startDigitX + digitWidth + DIGIT_SPACING, textY);
 }
 
-void drawColonSegment(SDL_Renderer* renderer, int x, int y, int w, int h, Color outlineColor, Color bgColor, Color textColor, TTF_Font* font) {
-     drawSegmentBackground(renderer, x, y, w, h, outlineColor, bgColor);
-
+void drawColon(SDL_Renderer* renderer, int x, int y, int w, int h, Color textColor, TTF_Font* font) {
      int textWidth, textHeight;
      TTF_SizeText(font, ":", &textWidth, &textHeight);
      renderText(renderer, font, ":", textColor, x + (w - textWidth) / 2, y + (h - textHeight) / 2);
@@ -204,10 +189,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    TTF_Font* titleFont = TTF_OpenFont("arial.ttf", TITLE_FONT_SIZE);
-    TTF_Font* numberFont = TTF_OpenFont("arial.ttf", NUMBER_FONT_SIZE);
-    TTF_Font* labelFont = TTF_OpenFont("arial.ttf", LABEL_FONT_SIZE);
-    TTF_Font* quoteFont = TTF_OpenFont("arial.ttf", QUOTE_FONT_SIZE);
+    TTF_Font* titleFont = TTF_OpenFont("Technology.ttf", TITLE_FONT_SIZE);
+    TTF_Font* numberFont = TTF_OpenFont("Technology.ttf", NUMBER_FONT_SIZE);
+    TTF_Font* labelFont = TTF_OpenFont("Technology.ttf", LABEL_FONT_SIZE);
+    TTF_Font* quoteFont = TTF_OpenFont("Technology.ttf", QUOTE_FONT_SIZE);
     if (!titleFont || !numberFont || !labelFont || !quoteFont) {
         printf("Font loading failed: %s\n", TTF_GetError());
         SDL_DestroyRenderer(renderer);
@@ -217,12 +202,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Color blueBackground = {0x1a, 0x44, 0x8a, 0xff};
-    Color whiteBackground = {0xff, 0xff, 0xff, 0xff};
-    Color darkBlueText = {0x1a, 0x44, 0x8a, 0xff};
-    Color whiteText = {0xff, 0xff, 0xff, 0xff};
-    Color lightBlueSquare = {0x2a, 0x54, 0x9a, 0xff};
-    Color segmentOutlineColor = {0x00, 0x00, 0x00, 0xff};
+    Color darkBackground = {0x10, 0x10, 0x10, 0xff};
+    Color neonBlue = {0x00, 0xf0, 0xff, 0xff};
+    Color neonMagenta = {0xff, 0x00, 0xff, 0xff};
+    Color darkNeonBlue = {0x00, 0x70, 0x90, 0xff};
 
     std::vector<std::string> quotes = loadQuotes("quotes.txt");
     srand(time(NULL));
@@ -269,58 +252,59 @@ int main(int argc, char* argv[]) {
             sprintf(minutesStr, "%02d", minutes);
         }
 
-        SDL_SetRenderDrawColor(renderer, blueBackground.r, blueBackground.g, blueBackground.b, blueBackground.a);
+        SDL_SetRenderDrawColor(renderer, darkBackground.r, darkBackground.g, darkBackground.b, darkBackground.a);
         SDL_RenderClear(renderer);
 
-        drawDaySquares(renderer, daysRemaining > TOTAL_SQUARES ? TOTAL_SQUARES : daysRemaining, whiteText, lightBlueSquare);
+        drawDaySquares(renderer, daysRemaining > TOTAL_SQUARES ? TOTAL_SQUARES : daysRemaining, neonBlue, darkNeonBlue);
 
         int titleWidth, titleHeight;
         TTF_SizeText(titleFont, "Countdown", &titleWidth, &titleHeight);
-        renderText(renderer, titleFont, "Countdown", whiteText, (WINDOW_WIDTH - titleWidth) / 2, PADDING);
+        renderText(renderer, titleFont, "Countdown", neonMagenta, (WINDOW_WIDTH - titleWidth) / 2, PADDING);
 
         int digitWidth, numberHeight;
         TTF_SizeText(numberFont, "0", &digitWidth, &numberHeight);
         int colonWidth;
         TTF_SizeText(numberFont, ":", &colonWidth, NULL);
 
-        int numberSegmentWidth = digitWidth * 2 + DIGIT_SPACING + SEGMENT_OUTLINE_THICKNESS * 2;
-        int segmentHeight = numberHeight + PADDING;
+        int numberDisplayWidth = digitWidth * 2 + DIGIT_SPACING;
+        int colonDisplayWidth = colonWidth;
+        int displayHeight = numberHeight;
 
-        int totalSegmentsWidth = numberSegmentWidth * 3 + colonWidth * 2 + PADDING * 4;
-        int startX = (WINDOW_WIDTH - totalSegmentsWidth) / 2;
+        int totalDisplayWidth = numberDisplayWidth * 3 + colonDisplayWidth * 2 + PADDING * 4;
+        int startX = (WINDOW_WIDTH - totalDisplayWidth) / 2;
         int numberY = PADDING * 2 + titleHeight;
-        int labelY = numberY + segmentHeight + PADDING / 2;
+        int labelY = numberY + displayHeight + PADDING / 2;
 
-        drawNumberSegment(renderer, startX, numberY, numberSegmentWidth, segmentHeight, segmentOutlineColor, whiteBackground, darkBlueText, numberFont, daysStr);
+        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, neonBlue, numberFont, daysStr);
         int daysLabelWidth;
         TTF_SizeText(labelFont, "Days", &daysLabelWidth, NULL);
-        renderText(renderer, labelFont, "Days", whiteText, startX + numberSegmentWidth/2 - daysLabelWidth/2, labelY);
-        startX += numberSegmentWidth + PADDING;
+        renderText(renderer, labelFont, "Days", neonBlue, startX + numberDisplayWidth/2 - daysLabelWidth/2, labelY);
+        startX += numberDisplayWidth + PADDING;
         
-        drawColonSegment(renderer, startX, numberY, colonWidth + SEGMENT_OUTLINE_THICKNESS * 2, segmentHeight, segmentOutlineColor, whiteBackground, darkBlueText, numberFont);
-        startX += colonWidth + SEGMENT_OUTLINE_THICKNESS * 2 + PADDING;
+        drawColon(renderer, startX, numberY, colonDisplayWidth, displayHeight, neonBlue, numberFont);
+        startX += colonDisplayWidth + PADDING;
 
-        drawNumberSegment(renderer, startX, numberY, numberSegmentWidth, segmentHeight, segmentOutlineColor, whiteBackground, darkBlueText, numberFont, hoursStr);
+        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, neonBlue, numberFont, hoursStr);
         int hoursLabelWidth;
         TTF_SizeText(labelFont, "Hours", &hoursLabelWidth, NULL);
-        renderText(renderer, labelFont, "Hours", whiteText, startX + numberSegmentWidth/2 - hoursLabelWidth/2, labelY);
-        startX += numberSegmentWidth + PADDING;
+        renderText(renderer, labelFont, "Hours", neonBlue, startX + numberDisplayWidth/2 - hoursLabelWidth/2, labelY);
+        startX += numberDisplayWidth + PADDING;
 
-        drawColonSegment(renderer, startX, numberY, colonWidth + SEGMENT_OUTLINE_THICKNESS * 2, segmentHeight, segmentOutlineColor, whiteBackground, darkBlueText, numberFont);
-        startX += colonWidth + SEGMENT_OUTLINE_THICKNESS * 2 + PADDING;
+        drawColon(renderer, startX, numberY, colonDisplayWidth, displayHeight, neonBlue, numberFont);
+        startX += colonDisplayWidth + PADDING;
 
-        drawNumberSegment(renderer, startX, numberY, numberSegmentWidth, segmentHeight, segmentOutlineColor, whiteBackground, darkBlueText, numberFont, minutesStr);
+        drawNumber(renderer, startX, numberY, numberDisplayWidth, displayHeight, neonBlue, numberFont, minutesStr);
         int minutesLabelWidth;
         TTF_SizeText(labelFont, "Minutes", &minutesLabelWidth, NULL);
-        renderText(renderer, labelFont, "Minutes", whiteText, startX + numberSegmentWidth/2 - minutesLabelWidth/2, labelY);
+        renderText(renderer, labelFont, "Minutes", neonBlue, startX + numberDisplayWidth/2 - minutesLabelWidth/2, labelY);
 
         if (!quotes.empty()) {
             const std::string& quote = quotes[currentQuoteIndex];
-            renderWrappedText(renderer, quoteFont, quote.c_str(), whiteText, PADDING, labelY + LABEL_FONT_SIZE + PADDING * 2, WINDOW_WIDTH - PADDING * 2);
+            renderWrappedText(renderer, quoteFont, quote.c_str(), neonMagenta, PADDING, labelY + LABEL_FONT_SIZE + PADDING * 2, WINDOW_WIDTH - PADDING * 2);
         }
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(16); // Cap at ~60 FPS for smoother rendering
+        SDL_Delay(16);
     }
 
     TTF_CloseFont(titleFont);
